@@ -1,0 +1,20 @@
+Log
+
+The total time to develop this program was roughly a little under 3 hours
+
+May 5
+
+- Today, I first worked on implementing the server and client from the website provided on the homework assignment
+	- This was fairly simple and very user-friendly when implementing ports as a command line argument
+- After I completed this, I quickly learned how the code worked and got started on communicating messages between the client and server
+	- The 'buffer' array was what was passed onto the server through the client
+	- Due to the nature of the assignment, I kept the client.c code the exact same, since all of the operations would be done on the server
+- Next, I started working on reading in the 'buffer' character array and turning it into a executable expression
+	- This was actually more difficult than I had previously anticipated but it still wasn't too bad
+	- I simply used 'strtok' to quickly separate the three strings, the first being the sign and the next being the numbers
+	- Then I used atoi to convert the strings into numbers for the left and right hand numbers
+	- After I had all of my numbers and signs figured out, I used the sign to determine which operation to use and stored the value into 'answer'
+	- I then send this back to the client, which of course printed out the answer on its end
+- After reviewing the Assignment description, I noticed that it asked to keep the ports between 4500 and 4525
+	- Although I could have forced the program to use a certain port, I decided to leave it as a command line argument
+	- This was because, at least in my case, the server would sometimes stay open and the port would not be available for another server

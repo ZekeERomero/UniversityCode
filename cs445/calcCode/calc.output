@@ -1,0 +1,389 @@
+Grammar
+
+    0 $accept: statementlist $end
+
+    1 statementlist: statementlist statement
+    2              | statement
+
+    3 statement: '\n'
+    4          | expression '\n'
+    5          | QUIT '\n'
+
+    6 expression: ID '=' expression
+    7           | sumexp
+
+    8 sumexp: sumexp '+' mulexp
+    9       | sumexp '-' mulexp
+   10       | mulexp
+
+   11 mulexp: mulexp '*' unary
+   12       | mulexp '/' unary
+   13       | unary
+
+   14 unary: '-' unary
+   15      | factor
+
+   16 factor: ID
+   17       | '(' expression ')'
+   18       | NUMBER
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'\n' (10) 3 4 5
+'(' (40) 17
+')' (41) 17
+'*' (42) 11
+'+' (43) 8
+'-' (45) 9 14
+'/' (47) 12
+'=' (61) 6
+error (256)
+QUIT (258) 5
+NUMBER (259) 18
+ID (260) 6 16
+
+
+Nonterminals, with rules where they appear
+
+$accept (14)
+    on left: 0
+statementlist (15)
+    on left: 1 2, on right: 0 1
+statement (16)
+    on left: 3 4 5, on right: 1 2
+expression (17)
+    on left: 6 7, on right: 4 6 17
+sumexp (18)
+    on left: 8 9 10, on right: 7 8 9
+mulexp (19)
+    on left: 11 12 13, on right: 8 9 10 11 12
+unary (20)
+    on left: 14 15, on right: 11 12 13 14
+factor (21)
+    on left: 16 17 18, on right: 15
+
+
+State 0
+
+    0 $accept: . statementlist $end
+
+    QUIT    shift, and go to state 1
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 3
+    '\n'    shift, and go to state 4
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    statementlist  go to state 7
+    statement      go to state 8
+    expression     go to state 9
+    sumexp         go to state 10
+    mulexp         go to state 11
+    unary          go to state 12
+    factor         go to state 13
+
+
+State 1
+
+    5 statement: QUIT . '\n'
+
+    '\n'  shift, and go to state 14
+
+
+State 2
+
+   18 factor: NUMBER .
+
+    $default  reduce using rule 18 (factor)
+
+
+State 3
+
+    6 expression: ID . '=' expression
+   16 factor: ID .
+
+    '='  shift, and go to state 15
+
+    $default  reduce using rule 16 (factor)
+
+
+State 4
+
+    3 statement: '\n' .
+
+    $default  reduce using rule 3 (statement)
+
+
+State 5
+
+   14 unary: '-' . unary
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 16
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    unary   go to state 17
+    factor  go to state 13
+
+
+State 6
+
+   17 factor: '(' . expression ')'
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 3
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    expression  go to state 18
+    sumexp      go to state 10
+    mulexp      go to state 11
+    unary       go to state 12
+    factor      go to state 13
+
+
+State 7
+
+    0 $accept: statementlist . $end
+    1 statementlist: statementlist . statement
+
+    $end    shift, and go to state 19
+    QUIT    shift, and go to state 1
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 3
+    '\n'    shift, and go to state 4
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    statement   go to state 20
+    expression  go to state 9
+    sumexp      go to state 10
+    mulexp      go to state 11
+    unary       go to state 12
+    factor      go to state 13
+
+
+State 8
+
+    2 statementlist: statement .
+
+    $default  reduce using rule 2 (statementlist)
+
+
+State 9
+
+    4 statement: expression . '\n'
+
+    '\n'  shift, and go to state 21
+
+
+State 10
+
+    7 expression: sumexp .
+    8 sumexp: sumexp . '+' mulexp
+    9       | sumexp . '-' mulexp
+
+    '+'  shift, and go to state 22
+    '-'  shift, and go to state 23
+
+    $default  reduce using rule 7 (expression)
+
+
+State 11
+
+   10 sumexp: mulexp .
+   11 mulexp: mulexp . '*' unary
+   12       | mulexp . '/' unary
+
+    '*'  shift, and go to state 24
+    '/'  shift, and go to state 25
+
+    $default  reduce using rule 10 (sumexp)
+
+
+State 12
+
+   13 mulexp: unary .
+
+    $default  reduce using rule 13 (mulexp)
+
+
+State 13
+
+   15 unary: factor .
+
+    $default  reduce using rule 15 (unary)
+
+
+State 14
+
+    5 statement: QUIT '\n' .
+
+    $default  reduce using rule 5 (statement)
+
+
+State 15
+
+    6 expression: ID '=' . expression
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 3
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    expression  go to state 26
+    sumexp      go to state 10
+    mulexp      go to state 11
+    unary       go to state 12
+    factor      go to state 13
+
+
+State 16
+
+   16 factor: ID .
+
+    $default  reduce using rule 16 (factor)
+
+
+State 17
+
+   14 unary: '-' unary .
+
+    $default  reduce using rule 14 (unary)
+
+
+State 18
+
+   17 factor: '(' expression . ')'
+
+    ')'  shift, and go to state 27
+
+
+State 19
+
+    0 $accept: statementlist $end .
+
+    $default  accept
+
+
+State 20
+
+    1 statementlist: statementlist statement .
+
+    $default  reduce using rule 1 (statementlist)
+
+
+State 21
+
+    4 statement: expression '\n' .
+
+    $default  reduce using rule 4 (statement)
+
+
+State 22
+
+    8 sumexp: sumexp '+' . mulexp
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 16
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    mulexp  go to state 28
+    unary   go to state 12
+    factor  go to state 13
+
+
+State 23
+
+    9 sumexp: sumexp '-' . mulexp
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 16
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    mulexp  go to state 29
+    unary   go to state 12
+    factor  go to state 13
+
+
+State 24
+
+   11 mulexp: mulexp '*' . unary
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 16
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    unary   go to state 30
+    factor  go to state 13
+
+
+State 25
+
+   12 mulexp: mulexp '/' . unary
+
+    NUMBER  shift, and go to state 2
+    ID      shift, and go to state 16
+    '-'     shift, and go to state 5
+    '('     shift, and go to state 6
+
+    unary   go to state 31
+    factor  go to state 13
+
+
+State 26
+
+    6 expression: ID '=' expression .
+
+    $default  reduce using rule 6 (expression)
+
+
+State 27
+
+   17 factor: '(' expression ')' .
+
+    $default  reduce using rule 17 (factor)
+
+
+State 28
+
+    8 sumexp: sumexp '+' mulexp .
+   11 mulexp: mulexp . '*' unary
+   12       | mulexp . '/' unary
+
+    '*'  shift, and go to state 24
+    '/'  shift, and go to state 25
+
+    $default  reduce using rule 8 (sumexp)
+
+
+State 29
+
+    9 sumexp: sumexp '-' mulexp .
+   11 mulexp: mulexp . '*' unary
+   12       | mulexp . '/' unary
+
+    '*'  shift, and go to state 24
+    '/'  shift, and go to state 25
+
+    $default  reduce using rule 9 (sumexp)
+
+
+State 30
+
+   11 mulexp: mulexp '*' unary .
+
+    $default  reduce using rule 11 (mulexp)
+
+
+State 31
+
+   12 mulexp: mulexp '/' unary .
+
+    $default  reduce using rule 12 (mulexp)

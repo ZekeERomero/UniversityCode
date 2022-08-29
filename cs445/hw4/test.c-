@@ -1,0 +1,13 @@
+int hello, hi;
+
+int main()
+{
+	int i : 2;
+	char d : d;
+
+//	d := d + d;
+
+	i;
+
+	return 0;
+}

@@ -1,0 +1,9 @@
+procedure main()
+   #&window := open("rfm", "g", "fg=blue", "drawop=reverse")
+   repeat {
+      e := Event()
+      case e of {
+         "q" : exit(0)
+	}         
+}
+end

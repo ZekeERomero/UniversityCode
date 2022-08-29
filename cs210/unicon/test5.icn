@@ -1,0 +1,21 @@
+record tree(data,ltree,rtree)
+
+procedure main()
+
+	#record rec(fielda, fieldb, fieldc)
+	#r := rec("mylabel",2.71,39)
+	t1 := tree("hello")
+	t2 := tree("greetings", tree("thing1"), tree("thing2"))
+	root := tree("root", t1, t2)
+
+	every write(walk(root))
+end
+
+procedure walk(t)
+	if /t then
+		fail
+	else {
+		suspend walk(t.ltree | t.rtree)
+		return t.data
+	}
+end

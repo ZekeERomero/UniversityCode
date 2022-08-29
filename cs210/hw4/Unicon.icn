@@ -1,0 +1,442 @@
+#Ezequiel Romero
+
+#As a dislaimer for the rest of this program, there are multple list, most of them describing the 24 x 78 grid.
+#The way this program works is first done by creating the actual rooms in the area. It decides which rooms will be the
+#entrance and the exit. Then, it determines how many doors each room gets (1 or 2). After creating the completed rooms,
+#it will move on to a completely different function to determine the pathing between rooms. In this algorithm, it simply
+#looks for doors and paths to them, avoiding other buildings. It paths from one to door to the next, i.e. 1 to 2 and 2 to
+#3 and so on. I will now explain what each list does:
+	#L - (y,x) This is the initial list that generates the map of the buildings with doors, starting/ending positions, and paths.
+	#positions - (room,x or y) This list, unlike the rest, is a global list, which simply 
+	#coordinates - (x,y) This list is given all of the coordinates of the doors
+	#doubledoors - (door) This list is a temporary list that is used to determine whether or not a room has two doors.
+	#duplicate - (door) This list holds the actual positions of the duplicates so that their paths may not exist (Mostly aesthetic)
+	#collisions - (x,y) This list holds all of the possible collisions in the playing field to make sure the list L is legal, i.e
+	#the paths and the buildings
+	#entry - (x,y) This list holds all of the actual destinations for pathing, which is a block outside of the door i.e. +#<-- here
+
+global positions
+
+#This main procedure is here to simply generate L through other procedures
+procedure main()
+
+	#sets the global positions list to &null
+	positions := []
+
+	#This determines how many rooms will be generated, along with their paths
+	roomAmount := 6
+
+	#This intializes the L list
+	L := list(24, repl(" ", 78))
+
+	#This generates buildings and doors for the L list, which also includes one entrance and exit
+	L := generate(L,roomAmount,[[0,0,0,0]],1,1)
+
+	#This generates the paths for each building
+	L := paths(L,roomAmount)
+	
+	#This prints out the map
+	every i:= 1 to 24 do write(L[i])
+
+end
+
+#This procedure, as explained above, will generate paths for each of the doors, unless its a duplicate door on the same building.
+procedure paths(L,roomAmount)
+	coordinates := []
+	doubledoors := list(roomAmount,0)
+	#double - This counts the amount of duplicates there are. Integer variables such as this can be found throughout the program to
+	#late loop through each of the lists parts
+	double := 0
+	doorAmount := 0
+	duplicate := []
+
+	#This is a nested for loop, basically, that first appends the discovered 'door' positions to the coordinates variable
+	#The for loop inside will determine if the door found was actually a second door on a single building (A duplicate)	
+	every i:= 1 to 24 do {
+		every j:= 1 to 78 do {		
+			if (L[i][j] === "+")then {
+				put(coordinates,[j,i])
+				doorAmount +:= 1
+				every room := 1 to roomAmount do {
+					if ((j>=positions[room][1]-1) & 
+					(j<=positions[room][1]+positions[room][3]+1) &
+					(i>=positions[room][2]-1) &
+					(i<=positions[room][2]+positions[room][4]+1))
+					then {
+						#When a single door is found, it will set that index in doubledoors to 1. If another 
+						#door is found in the same index, it will be considered a duplicate
+						if(doubledoors[room] === 0) then {
+							doubledoors[room] := 1
+						}
+						else {
+							put(duplicate,doorAmount)
+							double +:= 1
+						}
+					}
+				}
+			}	
+		}
+	}
+
+	#This sets the entry list to &null
+	entry := []
+
+	#This is the algorithm that determines where the entry points are for every door, which is one block outward of their position
+	every i:= 1 to doorAmount do {	if (L[coordinates[i][2]-1][coordinates[i][1]] === ("."|">"|"<")) then {
+						L[coordinates[i][2]+1][coordinates[i][1]] := "R"
+						if (i == 1) then initialy := 1
+						if (i == 1) then initialx := 0
+						put(entry,[coordinates[i][1],coordinates[i][2]+1])
+					}
+					else if (L[coordinates[i][2]+1][coordinates[i][1]] === ("."|">"|"<")) then {
+						L[coordinates[i][2]-1][coordinates[i][1]] := "R"
+						if (i == 1) then initialy := -1
+						if (i == 1) then initialx := 0
+						put(entry,[coordinates[i][1],coordinates[i][2]-1])
+					}
+					else if (L[coordinates[i][2]][coordinates[i][1]+1] === ("."|">"|"<")) then {
+						L[coordinates[i][2]][coordinates[i][1]-1] := "R"
+						if (i == 1) then initialy := 0
+						if (i == 1) then initialx := -1
+						put(entry,[coordinates[i][1]-1,coordinates[i][2]])
+					}
+					else if (L[coordinates[i][2]][coordinates[i][1]-1] === ("."|">"|"<")) then {
+						L[coordinates[i][2]][coordinates[i][1]+1] := "R"
+						if (i == 1) then initialy := 0
+						if (i == 1) then initialx := 1
+						put(entry,[coordinates[i][1]+1,coordinates[i][2]])
+					}
+	}
+
+	#startline := 1
+	#endline := 1
+
+	#This starts the pathing process at door 1
+	line := 1
+
+	while(line < doorAmount) do {
+		lineCheck := 0
+		#This checks if the entry is a duplicate or not, which will determine if it does get a path
+		every i:= 1 to double do if(line === duplicate[i]-1) then lineCheck := 1
+		if(lineCheck === 0) then {
+			#The algorithm for pathing is given the map, entry points, and beginning/ending paths
+			L := algorithm(L,entry,line,line+1,"R")
+		}	
+		#The next path starts
+		line +:= 1
+	}
+
+	#This for loop converts all of the "R" paths into "#"
+	every i := 1 to 24 do {
+        	every j := 1 to 78 do {
+                	if (L[i][j] === "R") then L[i][j] := "#"
+             	}
+   	}
+
+	#This returns the newly generated map, completed
+	suspend L
+end
+
+#This procedure actually creates the paths for each possible
+#This algorithm merely traverse a certain x and y distance until it reaches the goal
+procedure algorithm(L,entry,i,j,symbol)
+
+	#These values determine the x and y distances from the goal
+	xDist := integer(entry[i][1]) - integer(entry[j][1])
+	yDist := integer(entry[i][2]) - integer(entry[j][2])
+
+	#This value determines the starting position of the path
+	yPos := integer(entry[i][2])
+	xPos := integer(entry[i][1])
+
+	#These collision and wall variables will be used to determine where collisions are, relative to the path
+	collisionL := 0
+	collisionR := 0
+	collisionU := 0
+	collisionD := 0
+	lWall := 0
+	rWall := 0
+	uWall := 0
+	dWall := 0
+	
+	#Due to the nature of processing paths, if no path can be found, this is a safety measure to end the loop
+	loop := 250
+	while (((abs(xDist) > 0) | (abs(yDist) > 0)) & loop > 0) do
+	{
+		#If no predetermined collisions exist, continue to create the path
+		if (lWall === 0 & rWall === 0 & uWall === 0 & dWall === 0) then {
+		loop -:= 1
+		#These random values simply give the path a pseudo-nonlinear nature (i.e. not just lines)
+		randHorizontal := ?5
+		randVertical := ?5
+
+		#These statements will create the path AS LONG AS there are no collisions. If so, set the collision variables above accordingly
+		#As the path traverses, it manually reduces the x or y distance from the path
+		#This will continue until the x AND y distance are 0
+		while (randHorizontal > 0) do {
+			randHorizontal -:= 1
+			if (xDist > 0 & L[yPos][xPos-1] === (" "|"R")) then {
+				xPos := xPos - 1
+				L[yPos][xPos] := symbol
+				xDist -:= 1
+				if (L[yPos-1][xPos] === (" "|"R")) then collisionU := 0
+				if (L[yPos+1][xPos] === (" "|"R")) then collisionD := 0
+			}
+			else if (xDist < 0 & L[yPos][xPos+1] === (" "|"R")) then {
+                        	xPos := xPos + 1
+                        	L[yPos][xPos] := symbol
+				xDist +:= 1
+				if (L[yPos-1][xPos] === (" "|"R")) then collisionU := 0
+                                if (L[yPos+1][xPos] === (" "|"R")) then collisionD := 0
+                	}
+			else if (xDist > 0 & L[yPos][xPos-1] === "#") then
+			{
+				xDist := 0
+				yDist := 0
+				break
+			}
+			else if (xDist < 0 & L[yPos][xPos+1] === "#") then
+                        {
+                                xDist := 0
+                                yDist := 0
+                                break
+                        }
+			else if (xDist > 0) then
+			{
+				collisionL := 1
+			}
+			else if (xDist < 0) then
+                        {
+                                collisionR := 1
+                        }
+		}
+		while (randVertical > 0) do {
+			randVertical -:= 1
+                	if (yDist > 0 & L[yPos-1][xPos] === (" "|"R")) then {
+                        	yPos := yPos - 1
+                        	L[yPos][xPos] := symbol
+				yDist -:= 1
+				if (L[yPos][xPos-1] === (" "|"R")) then collisionL := 0
+                                if (L[yPos][xPos+1] === (" "|"R")) then collisionR := 0
+                	}
+                	if (yDist < 0 & L[yPos+1][xPos] === (" "|"R")) then {
+                        	yPos := yPos + 1
+                        	L[yPos][xPos] := symbol
+				yDist +:= 1
+				if (L[yPos][xPos-1] === (" "|"R")) then collisionL := 0
+                                if (L[yPos][xPos+1] === (" "|"R")) then collisionR := 0
+                	}
+			else if (yDist > 0 & L[yPos-1][xPos] === "#") then
+                        {
+                                xDist := 0
+                                yDist := 0
+                                break
+                        }
+                        else if (yDist < 0 & L[yPos+1][xPos] === "#") then
+                        {
+                                xDist := 0
+                                yDist := 0
+                                break
+                        }
+			else if (yDist > 0) then
+                        {
+                                collisionU := 1
+                        }
+                        else if (yDist < 0) then
+                        {
+                                collisionD := 1
+                        }
+        	}
+		#If a collision is found, set the wall value. This will allow the path to go around the building
+		#This process can be seen in the following 'else if' statements
+		#It is done by having the path go either down or right until the collision is no longer there
+		if (yDist === 0 & collisionL === 1) then lWall := 1
+		if (yDist === 0 & collisionR === 1) then rWall := 1
+		if (xDist === 0 & collisionU === 1) then uWall := 1
+		if (xDist === 0 & collisionD === 1) then dWall := 1
+		}
+		else if (lWall === 1) then {
+			while (L[yPos][xPos-1] === ("-"|"|"|"+")) do {
+				yPos := yPos + 1
+				yDist +:= 1
+				L[yPos][xPos] := symbol
+			}
+			xPos := xPos - 1
+                        xDist -:= 1
+                        L[yPos][xPos] := symbol
+			lWall := 0
+			collisionL := 0
+		}
+		else if (rWall === 1) then {
+                        while (L[yPos][xPos+1] === ("-"|"|"|"+")) do {
+                                yPos := yPos + 1
+                                L[yPos][xPos] := symbol
+                                yDist +:= 1
+                        }
+			xPos := xPos + 1
+                        xDist +:= 1
+                        L[yPos][xPos] := symbol
+                        rWall := 0
+			collisionR := 0
+                }
+		else if (uWall === 1) then {
+                        while (L[yPos-1][xPos] === ("-"|"+")) do {
+                                xPos := xPos + 1
+                                L[yPos][xPos] := symbol
+                                xDist +:= 1
+                        }
+			yPos := yPos - 1
+                        yDist -:= 1
+                        L[yPos][xPos] := symbol
+                        uWall := 0
+			collisionU := 0
+                }
+		else if (dWall === 1) then {
+                        while (L[yPos+1][xPos] === ("-"|"+")) do {
+                                xPos := xPos + 1
+                                L[yPos][xPos] := symbol
+                                xDist +:= 1
+                        }
+			yPos := yPos + 1
+                        yDist +:= 1
+                        L[yPos][xPos] := symbol
+                        dWall := 0
+			collisionD := 0
+                }
+		#This is the safety mechanism to display if a path was able to complete or not
+		#This was mostly used for testing, but due to the randomness of this project,
+		#There can't be any way of knowing for any incompletions
+		if (loop === 1) then write("PATH DID NOT COMPLETE")
+	}
+
+	#This returns the newly generated L list
+	suspend(L)
+	
+end
+
+#This procedure is in charge of actually generating the buildings within the playing field
+procedure generate(L,loops,collisions,size,start)
+	
+	test := 0
+
+	#This while loop is responsible for finding legal random parameters
+	#It is first given a random position and size to create the building. If the buildings parameters, however, interfere
+	#With an already existing building, it will generate new random numbers. This will continue until it receieves legal parameters
+	while (test === 0) do ? {	
+		xPos := ?54 + 1
+        	yPos := ?15 + 1
+
+        	ySize := ?4 + 1  # 2-5 what range is legal
+        	xSize := ?19 + 1 # 2-20
+		
+		test := 1
+		
+		#Temp acts as another boundary. This allows a space in-between buildings to account for paths and map boundaries
+		xTemp := xSize + 2
+		yTemp := ySize + 2
+	
+		#Conditions
+		every i:= 1 to size do if ((xPos >= collisions[i][1] & xPos <= (collisions[i][1] + collisions[i][3])) & (yPos >= collisions[i][2] & yPos <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((xPos >= collisions[i][1] & xPos <= (collisions[i][1] + collisions[i][3])) & (yPos+yTemp >= collisions[i][2] & yPos+yTemp <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((xPos+xTemp >= collisions[i][1] & xPos+xTemp <= (collisions[i][1] + collisions[i][3])) & (yPos >= collisions[i][2] & yPos <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((xPos+xTemp >= collisions[i][1] & xPos+xTemp <= (collisions[i][1] + collisions[i][3])) & (yPos+yTemp >= collisions[i][2] & yPos+yTemp <= (collisions[i][2] + collisions[i][4]))) then test:=0
+	
+		every i:= 1 to size do if ((collisions[i][1] >= xPos & collisions[i][1] <= (xPos+ xTemp)) & (collisions[i][2] >= yPos & collisions[i][2] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] >= xPos & collisions[i][1] <= (xPos+ xTemp)) & (collisions[i][2] + collisions[i][4] >= yPos & collisions[i][2] + collisions[i][4] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] + collisions[i][3] >= xPos & collisions[i][1]+collisions[i][3] <= (xPos+ xTemp)) & (collisions[i][2] >= yPos & collisions[i][2] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] + collisions[i][3] >= xPos & collisions[i][1]+collisions[i][3] <= (xPos+ xTemp)) & (collisions[i][2] + collisions[i][4] >= yPos & collisions[i][2] + collisions[i][4] <= (yPos + yTemp))) then test:=0
+		
+		every i:= 1 to size do if ((xPos >= collisions[i][1] & xPos <= (collisions[i][1] + collisions[i][3])) & (collisions[i][2] >= yPos & collisions[i][2] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((xPos >= collisions[i][1] & xPos <= (collisions[i][1] + collisions[i][3])) & (collisions[i][2] + collisions[i][4] >= yPos & collisions[i][2] + collisions[i][4] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((xPos+xTemp >= collisions[i][1] & xPos+xTemp <= (collisions[i][1] + collisions[i][3])) & (collisions[i][2] >= yPos & collisions[i][2] <= (yPos + yTemp))) then test := 0
+		every i:= 1 to size do if ((xPos+xTemp >= collisions[i][1] & xPos+xTemp <= (collisions[i][1] + collisions[i][3])) & (collisions[i][2] + collisions[i][4] >= yPos & collisions[i][2] + collisions[i][4] <= (yPos + yTemp))) then test:=0
+
+		every i:= 1 to size do if ((collisions[i][1] >= xPos & collisions[i][1] <= (xPos+ xTemp)) & (yPos >= collisions[i][2] & yPos <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] >= xPos & collisions[i][1] <= (xPos+ xTemp)) & (yPos+yTemp >= collisions[i][2] & yPos+yTemp <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] + collisions[i][3] >= xPos & collisions[i][1]+collisions[i][3] <= (xPos+ xTemp)) & (yPos >= collisions[i][2] & yPos <= (collisions[i][2] + collisions[i][4]))) then test := 0
+		every i:= 1 to size do if ((collisions[i][1] + collisions[i][3] >= xPos & collisions[i][1]+collisions[i][3] <= (xPos+ xTemp)) & (yPos+yTemp >= collisions[i][2] & yPos+yTemp <= (collisions[i][2] + collisions[i][4]))) then test:=0
+	}
+	#This places the parameters of each building into collisions and positions for later
+	put(collisions,[xPos,yPos,xTemp,yTemp])
+	put(positions,[xPos,yPos,xSize,ySize])
+
+	#The size of the buildings merely means the 'number' of buildings
+	size := size + 1
+	
+	#Loops refer to the total amount of buildings wanted
+
+	#Once legal parameters have been found, the L list would finally create the building
+	L := loop(L,xPos,yPos,xSize,ySize,start)
+	
+	#This procedure would repeat until the amount of rooms specified was met
+	if (loops > 1) then generate(L,loops-1,collisions,size,0) else suspend L
+end
+
+#This procedure generates the actual buildings with the correct, legal parameters
+#The start and finish arguments set up an initial starting position, and ending position
+procedure loop(L,xPos,yPos,xSize,ySize,start,finish)
+
+	#The walls are in charge of, of course, creating the walls out of '|'
+	#The way these walls are created is through multiple strings, depending on the ySize
+	#The roof is in charge of the top and bottom of the building. This can be done on a single string
+	walls := ""
+        every i:= 1 to xSize do walls := walls || "."
+        walls :=  "|" || walls || "|"
+        door := "+"
+	roof := ""
+        every i:= 1 to xSize+2 do roof := roof || "-"
+	
+	#This value determines how many doors this specific building will have 
+	doorAmount := ?2
+	if (start === 1) then doorAmount := 1
+	
+	#These random values determine where on the walls or roofs a door could be
+	rand := ?xSize + 1
+	rand2 := ?ySize
+	rand3 := ?ySize
+	rand4 :=  ?xSize + 1
+	
+	random2 := 0
+
+	#If the door count is 2, there will be two random placement
+	if (doorAmount === 2) then random2 := ?4
+		
+	random := ?4
+	#This makes sure both the random numbers aren't the same
+	while(random2 === random) do random2 := ?4
+
+		leftWall := 0
+                rightWall := 0
+                topRoof := 0
+                bottomRoof := 0
+
+		#These random numbers decide which wall or roof the door will be on
+		if (random == 1 | random2 === 1) then leftWall := 1
+		if (random == 2 | random2 === 2) then rightWall := 1
+		if (random == 3 | random2 === 3) then topRoof := 1
+		if (random == 4 | random2 === 4) then bottomRoof := 1
+		
+	yStart := ?ySize
+	
+	#These following processes will determine the placement for each of the walls and roofs, including their doors.
+	#It will also include the starting and ending points
+	#It first starts with the top roof, then the walls and every in-between, then the bottom 'roof'
+	if (topRoof === 1) then L[yPos] := L[yPos][1:xPos] || roof[1:rand] || door || roof[rand+1:0]  || L[yPos][xSize+xPos+2:0]
+        else L[yPos] := L[yPos][1:xPos] || roof || L[yPos][xSize+xPos+2:0]
+	every i:= 1 to ySize do {
+		L[yPos+i] := L[yPos+i][1:xPos] || walls || L[yPos+i][xSize+xPos+2:0]
+		if (leftWall === 1 & i === rand2) then {
+			L[yPos+i] := L[yPos+i][1:xPos] || door || L[yPos+i][xPos+1:0]
+		}
+		if (rightWall === 1 & i === rand3) then {
+			L[yPos+i] := L[yPos+i][1:xPos+xSize+1] || door || L[yPos+i][xSize+xPos+2:0]
+		}
+		if (i === yStart & start === 1) then L[yPos+i] := L[yPos+i][1:xPos+1] || "<" || L[yPos+i][xPos+2:0]
+		if (i === yStart & finish === 1) then L[yPos+i] := L[yPos+i][1:xPos+1] || ">" || L[yPos+i][xPos+2:0]
+	}
+	if (bottomRoof === 1) then L[yPos+i+1] := L[yPos+i+1][1:xPos] || roof[1:rand4] || door || roof[rand4+1:0] || L[yPos+i+1][xSize+xPos+2:0]
+	else L[yPos+i+1] := L[yPos+i+1][1:xPos] || roof || L[yPos+i+1][xSize+xPos+2:0]
+
+	#This returns the map with the buildings, doors, and starting/ending points
+	suspend L
+end

@@ -1,0 +1,13 @@
+char mainy;
+
+int main()
+{
+	int i;
+	char hi;
+	int yo;
+
+	yo := hello++;
+
+	i--;
+	hi++;
+}

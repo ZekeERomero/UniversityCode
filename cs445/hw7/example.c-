@@ -1,0 +1,17 @@
+int main()
+{
+        char hi[3]:"man";
+
+        for i := 0 to *hi do
+        {
+                output(i);
+		outputc(':');
+		outputc(' ');
+                outputc(hi[i]);
+		outputc(' ');
+		outputc(',');
+		outputc(' ');
+        }
+
+        return 2;
+}

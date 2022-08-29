@@ -1,0 +1,4 @@
+void otherfunction()
+{
+	//do nothing
+}

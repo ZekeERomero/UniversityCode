@@ -1,0 +1,4 @@
+void function()
+{
+	//do nothing
+}

@@ -1,0 +1,6 @@
+class Main2(args, argc)
+	method stuff(cool,stuff, #comment
+	#comment
+	yeah)
+	end
+end

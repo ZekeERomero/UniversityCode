@@ -1,0 +1,29 @@
+procedure main()
+
+        S := replace("the","this","Watch the quick brown fox jump over the lazy brown dog")
+
+end
+
+procedure replace(s1,s2,s3)
+
+        placements := []
+        copies := []
+        copied := 0
+        length_s2 := *s2
+        length_s1 := *s1
+        s3 ? {
+                every i := find(s1,&subject,&pos,0) do {#end of string is 0
+                        tab(i)
+                        put(placements,&pos)
+                        copied +:= 1
+                }
+        }
+
+        every i:= 1 to copied do {
+
+                put(copies,s3[1:placements[i]] || s2 || s3[placements[i]+length_s1:0])
+                write(s3[1:placements[i]] || s2 || s3[placements[i]+length_s1:0])
+        }
+
+	#All copies of replacements are found in copies (i.e. suspend copies[0->copied])
+end

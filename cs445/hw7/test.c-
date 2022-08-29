@@ -1,0 +1,12 @@
+int main()
+{
+        char hi[3]:"man";
+
+	for i := 0 to *hi do
+	{
+		output(i);
+		outputc(hi[i]);
+	}
+
+	return 2;
+}

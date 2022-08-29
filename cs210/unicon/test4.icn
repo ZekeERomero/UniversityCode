@@ -1,0 +1,18 @@
+procedure main()
+	
+	numrows := ?4 + 1  # 2-5 what range is legal
+	numcols := ?19 + 1 # 2-20
+
+	write("generating rooms of size ", numrows, "x", numcols)
+
+	s := ""
+	every i:= 1 to numcols do s := s || "."
+	s :=  "|" || s || "|"
+	r := ""
+	every i:= 1 to numcols+2 do r := r || "-"
+	
+	write(r)
+	every i:= 1 to numrows do write(s)
+	write(r)
+
+end

@@ -1,0 +1,11 @@
+TM version 4.6a (enter h for help)
+Data Addresses: 0-9999
+Instruction Addresses: 0-9999
+Instruction Execution Limit: 50000
+Output Instruction Limit: 1000
+Loading file: example.tm
+Enter command: 0 : m , 1 : a , 2 : n , 
+Status: Halted
+Last executed cmd:  133: HALT  0,  0, 0  |  r[0]:9999 r[1]:9995 r[2]:2   r[3]:133 r[4]:3   r[5]:3   r[6]:3   |  
+PC was 133, PC is now 134
+Enter command: Bye.

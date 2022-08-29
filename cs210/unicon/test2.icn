@@ -1,0 +1,28 @@
+procedure main()
+	x := 0
+	y := -1
+
+	#write((1|2) + (x|y)) #1st result only
+	#every write((1|2) + (x|y)) #every possible result
+
+	if z := ((1|2) + (x|y)) then write(z)
+	else write("no z")
+
+	every i := 0 to 10 do write (i)
+	every write(1 to 10)
+	every write(!10)
+
+	"hell(o), world" ? {
+
+		every write( bal('aeiou', '(',')'))
+
+	}
+	write(loop() \3)
+
+end
+
+procedure loop()
+	repeat {
+		suspend("hi")
+	}
+end

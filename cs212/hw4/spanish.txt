@@ -1,0 +1,6 @@
+3 tres
+2 dos
+4 quatro
+5 cinco
+1 uno
+6 seis

@@ -1,0 +1,137 @@
+% helloTex.m4  
+%
+%   An m4 file to package source files for submission.
+%  After using m4 on this file, a single file will
+%  be generated with the contents of the included files
+%  (hello.h, testHello.c, and hello.c).
+%
+%  To generate a file for typesetting:
+%
+%   m4 helloTex.m4 > NameSrc.tex
+%
+%  This resulting file can be typeset if desired.
+
+\documentclass[12pt]{article}
+
+%\usepackage[fancybox]
+%\usepackage{color}  % old
+\usepackage[usenames]{color}
+\definecolor{light-gray}{gray}{0.65}
+
+\begin{document}
+
+\section{Introduction}
+
+My introduction...
+
+\pagebreak
+
+\section{Output}
+
+Sample output...
+
+\pagebreak
+
+\section{Program Log}
+
+April 6: Demo!
+
+\pagebreak
+
+\section{Source Code}
+
+%  Header file(s)
+
+\subsection{lineNum.sh}
+
+\begin{verbatim}
+ls
+n="empty"
+until [ $n = "a" ] || [ $n = "r" ]
+do
+	read -p "Do you want to add or remove line numbers? (a/r): " n
+done
+
+if [ $n = "a" ]; then
+	read -p "File Name: " fileName
+	sed '/./=' $fileName | sed '/./N; s/\n/ /' > tempFile.txt
+	rm $fileName
+	cp tempFile.txt $fileName
+        rm tempFile.txt
+fi
+if [ $n = "r" ]; then
+	read -p "File Name: " fileName
+	sed 's/ *[0-9]*.//' $fileName > tempFile.txt
+	rm $fileName
+	cp tempFile.txt $fileName
+	rm tempFile.txt
+fi
+
+\end{verbatim}
+
+\pagebreak
+
+%  main file 
+
+\subsection{fileName.sh}
+
+\begin{verbatim}
+#for file in /var/*
+#do
+    #echo $file
+	#whatever you need with "$file"
+#done
+
+for fileName in *
+do
+	fileLower=${fileName,,}
+	newFile=${fileLower//_}
+	if [ $fileName = $newFile ]; then
+		echo "'$fileName' is not an illegal file name"
+	else
+		echo "Renaming '$fileName' to '$newFile'"
+		mv $fileName $newFile
+	fi
+done
+
+\end{verbatim}
+
+\pagebreak
+
+%  auxiliary file(s)
+\subsection{backup.sh}
+
+\begin{verbatim}
+if [ ! -d ".backup" ]; then
+	echo "Creating a backup subdirectory"
+	mkdir .backup
+fi
+for fileName in *
+do
+	n="y"
+	echo "Creating backup of $fileName"
+	backupName=".backup/$fileName"
+	for backupFile in .backup/*
+        do
+		if [ $backupFile = $backupName ]
+        	then
+                	n="empty"
+			until [ $n = "y" ] || [ $n = "n" ]
+			do
+				read -p "$fileName already exists. Would you like to replace it? (y/n): " n
+			done
+        	fi
+	done
+	if [ $n = "y" ]
+	then
+		mv $fileName tempFile
+		cp tempFile $fileName
+		mv $fileName .backup
+		mv tempFile $fileName
+	fi
+done
+
+\end{verbatim}
+
+\end{document}
+

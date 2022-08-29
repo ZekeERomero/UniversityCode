@@ -1,0 +1,7 @@
+ls
+ls;ls
+history
+!3
+ls|pr
+history
+exit

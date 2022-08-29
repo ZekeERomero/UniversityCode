@@ -1,0 +1,22 @@
+{ "class" : "Object",
+  "methods": {
+    "clone": ["seen"],
+    "to_string": ["depth", "seen"],
+    "equals": ["other", "seen"],
+    "hash_code": ["depth", "seen"],
+    "get_class_name": [],
+    "get_id": [],
+    "get_class": [],
+    "is_instance": ["name"],
+    "Type": [],
+    "instanceOf": ["superClassname"],
+    "className": [],
+    "invoke": ["mName", "args[]"],
+    "getField": ["fName"],
+    "setField": ["fName", "value"],
+    "hasField": ["fName"],
+    "fieldNames": [],
+    "genMethods": [],
+    "hasMethod": ["mName"]
+  }
+}

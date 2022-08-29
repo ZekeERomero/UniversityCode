@@ -1,0 +1,19 @@
+procedure main()
+
+	s := "The quick brown fox jumped over the lazy dog."
+	s ? {
+		every i := find("the",&subject,&pos,0) do {#end of string is 0
+			s2 := tab(i)
+		write("S: ", &subject)
+		writes(repl("-",&pos+2))
+		write("^")
+		write("(s2 is ", image(s2), " at ", &pos, ")")
+		}
+	}
+	frog := open("testc","w")
+	toad := open("testc","r")
+	w := read(toad)
+	write(w)
+	close(frog)
+	
+end

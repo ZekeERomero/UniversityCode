@@ -1,0 +1,9 @@
+procedure main ()
+
+	L := [[1,2],[2,3]]
+
+	put(L,[3,4])
+	
+	if (L[1][1] === 2 & L[2][1] === 2) then write("yes")
+
+end

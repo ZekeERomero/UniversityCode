@@ -1,0 +1,31 @@
+procedure main()
+
+	S := replace("fast","quick","Watch the quick brown fox jump over the quick dog with the quick man holding the dogs paw")
+
+	write(S)
+
+end
+
+procedure replace(s1,s2,s3)
+
+	placements := []
+	copied := 0
+	length_s2 := *s2
+	length_s1 := *s1
+        s3 ? {
+                every i := find(s2,&subject,&pos,0) do {#end of string is 0
+                        tab(i)
+                	put(placements,&pos+(length_s1-length_s2)*copied)
+			copied +:= 1
+                }
+        }
+	
+	every i:= 1 to copied do (
+		
+		s3 := s3[1:placements[i]] || s1 || s3[placements[i]+length_s2:0]
+		
+	)
+
+	suspend s3
+
+end

@@ -1,0 +1,17 @@
+#define VARIABLE      	1
+#define STRING		2
+#define NUMBER		3
+#define ADDEQUAL	4
+#define SUBTRACTEQUAL 	5
+#define MULTIPLYEQUAL 	6
+#define DIVIDEEQUAL	7
+#define EQUAL_OP	8
+#define POWER     	'^'
+#define MULTIPLY      	'*'
+#define DIVIDE   	'/'
+#define MODULO   	'%'
+#define ADD  		'+'
+#define SUBTRACT    	'-'
+#define RPAREN 		')'
+#define LPAREN		'('
+#define EQUALOP		'='

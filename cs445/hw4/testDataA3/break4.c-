@@ -1,0 +1,11 @@
+// C-F21
+main()
+{
+    while true do {
+        while true do {
+            break;
+        }
+        break;
+    }
+    break;
+}
